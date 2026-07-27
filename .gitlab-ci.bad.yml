@@ -1,0 +1,31 @@
+default:
+  tags:
+    - cicdwebianrs
+
+stages:
+  - setup
+  - test
+  - dockerize
+
+install_deps:
+  stage: setup
+  image: node:18
+  script:
+    - npm install
+    - npx prisma generate
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 hour
+
+run_tests:
+  stage: test
+  image: node:18
+  script:
+    - npm run test || true
+
+build_image:
+  stage: dockerize
+  image: docker:cli
+  script:
+    - docker build -t realworld-app:bad-latest .

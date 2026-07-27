@@ -1,0 +1,37 @@
+default:
+  tags:
+    - cicdwebianrs
+
+stages:
+  - test
+  - dockerize
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm/
+
+run_tests:
+  stage: test
+  image: node:18-alpine
+  tags:
+    - cicdwebianrs
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+    - npx prisma generate
+    - npm install jest-junit
+  script:
+    - JEST_JUNIT_OUTPUT_DIR="$CI_PROJECT_DIR" JEST_JUNIT_OUTPUT_NAME="junit-report.xml" npm run test -- --reporters=default --reporters=jest-junit
+  allow_failure: true
+  artifacts:
+    when: always
+    reports:
+      junit: junit-report.xml
+
+build_image:
+  stage: dockerize
+  image: docker:cli
+  script:
+    - docker build -t realworld-app:good-latest .
