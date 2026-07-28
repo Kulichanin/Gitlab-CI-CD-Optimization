@@ -12,10 +12,11 @@ cache:
       - package-lock.json
   paths:
     - .npm/
+    - node_modules/
 
 run_tests:
   stage: test
-  image: node:18-alpine
+  image: node:20-alpine
   tags:
     - cicdwebianrs
   before_script:
